@@ -1,5 +1,7 @@
 # Snap to Ground Add-On for Blender
 
+Snap to Ground is a Blender add-on designed to quickly snap selected mesh objects to the ground, similar to vertex snapping in other 3D software like Maya and 3ds Max. With customizable settings for distance limits, offsets, and rotation, it streamlines the process of aligning objects in your scene.
+
 ## Features
 
   * Snap to Ground: Easily move selected objects to the ground based on various criteria:
