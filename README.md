@@ -50,7 +50,7 @@ SimpleSnap is a Blender add-on designed to quickly snap selected mesh objects to
 
 If you encounter issues, please ensure you have the latest version of the add-on. If problems persist:
 
- - Create an issue here, or feel free to modify the code, let me know if you make any progress in that case.
+ - Create an issue here, or feel free to modify the code, let me know if you make any progress in that case. https://github.com/DanielTobs/SimpleSnap/issues
  - Provide a detailed description of the problem, including what you were doing and your scene setup.
 
 ## Known Issues / Limitations
