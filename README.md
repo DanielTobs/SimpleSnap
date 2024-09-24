@@ -33,7 +33,7 @@ SimpleSnap is a Blender add-on designed to quickly snap selected mesh objects to
 - Use the **Undo Snap** button to restore the previous position and rotation.
 - Customize settings directly from the panel, including the **Gap Offset** and randomization options.
 
-  ![screenshot](https://imgur.com/kRtA9Si.jpg)
+  ![screenshot](https://imgur.com/IBRfcFB.jpg)
 
 ## Using the Tool
 
