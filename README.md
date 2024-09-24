@@ -34,6 +34,8 @@ Snap to Ground is a Blender add-on designed to quickly snap selected mesh object
   * Use the Undo Snap button to restore the previous position and rotation.
   * Customize settings directly from the panel, including offsets and randomization options.
 
+  ![screenshot](https://imgur.com/kRtA9Si.jpg)
+
 ## Using the Tool
 
   1. Select the object(s) you want to snap to the ground.
@@ -49,7 +51,7 @@ Snap to Ground is a Blender add-on designed to quickly snap selected mesh object
 
 If you encounter issues, please ensure you have the latest version of the add-on. If problems persist:
 
-  * Create an issue here.
+  * Create an issue here, or feel free to modify the code, let me know if you make any progress in that case.
   * Provide a detailed description of the problem, including what you were doing and your scene setup.
 
 ## Known Issues / Limitations
