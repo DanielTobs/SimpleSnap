@@ -1,1 +1,60 @@
-# SnapToGround
+# Snap to Ground Add-On for Blender
+
+## Features
+
+  * Snap to Ground: Easily move selected objects to the ground based on various criteria:
+      * Snap to the nearest mesh object's origin.
+      * Snap to the bottom of selected objects.
+      * Customize snap behavior with offset options.
+
+   * Randomization Options:
+      * Randomize the position offset in X and Y directions.
+      * Randomly rotate the selected object around the X, Y, and Z axes before snapping.
+
+   * Flexible Target Selection: You can choose to snap to all objects or only mesh objects.
+
+   * Snap to Normal: Option to align the object to the surface normal of the closest object.
+
+   * Undo Functionality: Restore objects to their original position and rotation after snapping.
+
+   * User-Friendly Panel: Access all options conveniently within a dedicated panel in the 3D view.
+
+## Installation
+
+  1. Click on the green button Code > Download Zip to download the add-on to your computer.
+  2. In Blender, go to Edit > Preferences > Add-ons.
+  3. Click Install... in the top-right corner and select the downloaded archive.
+  4. Enable the add-on from the list.
+
+## Add-On Hotkeys and Settings
+
+  * By default, enable the tool using the End key to snap selected objects to the ground.
+  * Use the Undo Snap button to restore the previous position and rotation.
+  * Customize settings directly from the panel, including offsets and randomization options.
+
+## Using the Tool
+
+  1. Select the object(s) you want to snap to the ground.
+  2. Press the End key to execute the snap.
+  3. Optionally, adjust settings such as detection distance, offsets, and rotation randomization in the panel before snapping.
+
+## Important Notes
+
+  This tool is optimized for standard use; performance may decrease with very high-polygon models or many objects under the mouse.
+  For best results, isolate or hide unnecessary objects in your scene before using the tool.
+
+## Bug Report
+
+If you encounter issues, please ensure you have the latest version of the add-on. If problems persist:
+
+  * Create an issue here.
+  * Provide a detailed description of the problem, including what you were doing and your scene setup.
+
+## Known Issues / Limitations
+
+  * The randomization features may not function as expected in all scenarios; please report any anomalies.
+  * The tool is designed primarily for mesh objects; results may vary with other object types.
+
+## Version Support
+
+  * Compatible with Blender 4.2 and newer.
