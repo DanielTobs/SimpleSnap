@@ -56,7 +56,7 @@ If you encounter issues, please ensure you have the latest version of the add-on
 ## Known Issues / Limitations
 
  - The randomization features may not function as expected in all scenarios; please report any anomalies.
- - The tool is designed primarily for mesh objects; results may vary with other object types.
+ - The tool is designed primarily for mesh, curves and empty objects; results may vary with other object types.
 
 ## Version Support
 
