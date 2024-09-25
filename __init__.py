@@ -14,7 +14,7 @@ import random
 
 class SnapToGroundOperator(bpy.types.Operator):
     bl_idname = "object.snap_to_ground"
-    bl_label = "Snap to Ground"
+    bl_label = "Snap"
     bl_description = "Moves selected objects down to the ground."
 
     @classmethod
@@ -97,7 +97,7 @@ class SnapToGroundOperator(bpy.types.Operator):
 
 class UndoSnapOperator(bpy.types.Operator):
     bl_idname = "object.undo_snap_to_ground"
-    bl_label = "Undo Snap to Ground"
+    bl_label = "Undo Snap"
     bl_description = "Restores selected objects to their original position and rotation."
 
     @classmethod
@@ -120,7 +120,7 @@ class UndoSnapOperator(bpy.types.Operator):
 
 class CreatePivotOperator(bpy.types.Operator):
     bl_idname = "object.create_empty"
-    bl_label = "Create Empty"
+    bl_label = "Add Control"
     bl_description = "Creates an empty at the lowest position of selected objects and parents them with Keep Transform."
 
     @classmethod
@@ -160,6 +160,7 @@ class CreatePivotOperator(bpy.types.Operator):
         pivot_empty = bpy.data.objects.new("Empty", None)
         context.collection.objects.link(pivot_empty)
         pivot_empty.location = mid_point
+
         pivot_empty.location.z = lowest_z + z_offset
         pivot_empty.empty_display_size = custom_size
 
@@ -178,7 +179,7 @@ class CreatePivotOperator(bpy.types.Operator):
 
 class UndoCreatePivotOperator(bpy.types.Operator):
     bl_idname = "object.undo_create_empty"
-    bl_label = "Undo Create Empty"
+    bl_label = "Undo Add Control"
     bl_description = "Restores objects to their original parent and removes the empty."
 
     @classmethod
@@ -223,7 +224,7 @@ class SnapPanel(bpy.types.Panel):
         layout = self.layout
         
         layout.label(text="Snap Options")
-        layout.operator(SnapToGroundOperator.bl_idname, text="Snap to Ground")
+        layout.operator(SnapToGroundOperator.bl_idname, text="Snap")
         layout.operator(UndoSnapOperator.bl_idname, text="Undo Snap")
         
         layout.label(text="Press 'END' to snap quickly.")
@@ -236,31 +237,24 @@ class SnapPanel(bpy.types.Panel):
         layout.prop(context.scene, "snap_object_type")
         layout.prop(context.scene, "snap_rotate_to_normal")
 
-        layout.separator()  # Line separator
+        layout.separator()
 
-        layout.label(text="Empty Options")
-        layout.operator(CreatePivotOperator.bl_idname, text="Create Empty")
-        layout.operator(UndoCreatePivotOperator.bl_idname, text="Undo Create Empty")
+        layout.label(text="Control Options")
+        layout.operator(CreatePivotOperator.bl_idname, text="Add Control")
+        layout.operator(UndoCreatePivotOperator.bl_idname, text="Undo Add Control")
         
         layout.prop(context.scene, "pivot_empty_size")
         layout.prop(context.scene, "pivot_empty_z_offset")
 
-class SimpleSnapKeymap(bpy.types.Operator):
-    bl_idname = "object.simple_snap_keymap"
+class SimpleSnapKeymap(bpy.types.KeyMapItem):
+    bl_idname = "simple_snap_keymap"
     bl_label = "Simple Snap Keymap"
-    bl_description = "Activates Snap to Ground with the End key."
 
     def modal(self, context, event):
         if event.type == 'END' and event.value == 'PRESS':
             bpy.ops.object.snap_to_ground()
-            return {'RUNNING_MODAL'}
-        elif event.type in {'ESC'}:
-            return {'CANCELLED'}
+            return {'FINISHED'}
         return {'PASS_THROUGH'}
-
-    def invoke(self, context, event):
-        context.window_manager.modal_handler_add(self)
-        return {'RUNNING_MODAL'}
 
 def register():
     bpy.utils.register_class(SnapToGroundOperator)
@@ -298,13 +292,13 @@ def register():
     bpy.types.Scene.snap_rotate_to_normal = bpy.props.BoolProperty(name="Rotate to Normal", default=False)
 
     bpy.types.Scene.pivot_empty_size = bpy.props.FloatProperty(
-        name="Empty Size",
+        name="Control Size",
         default=1.0,
         min=0.0,
         step=0.1
     )
     bpy.types.Scene.pivot_empty_z_offset = bpy.props.FloatProperty(
-        name="Empty Z Offset",
+        name="Control Z Offset",
         default=0.0,
         min=-10.0,
         max=10.0,
