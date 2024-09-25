@@ -33,8 +33,8 @@ class SnapToGroundOperator(bpy.types.Operator):
         rotate_to_normal = context.scene.snap_rotate_to_normal
 
         for obj in selected_objects:
-            if obj.type not in {'MESH', 'CURVE', 'EMPTY'}:
-                continue  # Only process mesh, curve, and empty objects
+            if obj.type not in {'MESH', 'CURVE', 'EMPTY', 'ARMATURE'}:
+                continue  # Only process mesh, curve, empty, and armature objects
 
             # Apply random rotation first
             if rotate_randomly_x:
@@ -52,7 +52,7 @@ class SnapToGroundOperator(bpy.types.Operator):
             obj_bottom_z = original_location.z - (obj.dimensions.z / 2)
 
             for other in context.scene.objects:
-                if other != obj and (object_type == 'ALL' or other.type in {'MESH', 'CURVE', 'EMPTY'}):
+                if other != obj and (object_type == 'ALL' or other.type in {'MESH', 'CURVE', 'EMPTY', 'ARMATURE'}):
                     other_bottom_z = other.location.z - (other.dimensions.z / 2)
                     distance = obj_bottom_z - other_bottom_z
 
@@ -106,12 +106,115 @@ class UndoSnapOperator(bpy.types.Operator):
             if "original_location" in obj and "original_rotation" in obj:
                 obj.location = obj["original_location"]
                 obj.rotation_euler = obj["original_rotation"]
-                del obj["original_location"]  # Remove property after use
-                del obj["original_rotation"]  # Remove property after use
+                del obj["original_location"]
+                del obj["original_rotation"]
                 self.report({'INFO'}, f"Restored position and rotation of {obj.name}")
             else:
                 self.report({'WARNING'}, f"No original position found for {obj.name}.")
         
+        return {'FINISHED'}
+
+class CreatePivotOperator(bpy.types.Operator):
+    bl_idname = "object.create_empty"
+    bl_label = "Create Empty"
+    bl_description = "Creates an empty at the lowest position of selected objects and parents them with Keep Transform."
+
+    @classmethod
+    def poll(cls, context):
+        return context.selected_objects
+
+    def execute(self, context):
+        selected_objects = context.selected_objects
+        
+        if not selected_objects:
+            self.report({'WARNING'}, "No objects selected.")
+            return {'CANCELLED'}
+
+        # Get custom empty size and Z offset
+        custom_size = context.scene.pivot_empty_size
+        z_offset = context.scene.pivot_empty_z_offset
+
+        # Calculate the mid-point and find the lowest position
+        mid_point = Vector((0, 0, 0))
+        total_objects = len(selected_objects)
+
+        lowest_z = float('inf')
+        for obj in selected_objects:
+            if obj.type in {'MESH', 'CURVE', 'EMPTY', 'ARMATURE'}:
+                mid_point += obj.location
+
+                # For armatures, check all bones
+                if obj.type == 'ARMATURE':
+                    for bone in obj.data.bones:
+                        if bone.use_deform:
+                            # Calculate the bottom of the bone
+                            bone_bottom_z = obj.location.z + bone.head.z - (bone.length / 2)
+                            lowest_z = min(lowest_z, bone_bottom_z)
+                else:
+                    # Calculate the bottom of the object
+                    obj_bottom_z = obj.location.z - (obj.dimensions.z / 2)
+                    lowest_z = min(lowest_z, obj_bottom_z)
+
+        # Avoid division by zero if no objects were processed
+        if total_objects > 0:
+            mid_point /= total_objects
+
+        # Create an empty at the mid-point
+        pivot_empty = bpy.data.objects.new("Empty", None)
+        context.collection.objects.link(pivot_empty)
+        pivot_empty.location = mid_point
+
+        # Move the empty to the lowest position and set size
+        pivot_empty.location.z = lowest_z + z_offset  # Set Z offset directly
+        pivot_empty.empty_display_size = custom_size  # Size in all directions
+
+        # Select and parent the objects
+        bpy.ops.object.select_all(action='DESELECT')
+        pivot_empty.select_set(True)
+
+        for obj in selected_objects:
+            if obj.type in {'MESH', 'CURVE', 'EMPTY', 'ARMATURE'}:
+                obj.select_set(True)
+
+        # Set the parent with Keep Transform
+        bpy.context.view_layer.objects.active = pivot_empty
+        bpy.ops.object.parent_set(type='OBJECT', keep_transform=True)
+
+        self.report({'INFO'}, f"Created empty at Z: {pivot_empty.location.z}")
+        return {'FINISHED'}
+
+class UndoCreatePivotOperator(bpy.types.Operator):
+    bl_idname = "object.undo_create_empty"
+    bl_label = "Undo Create Empty"
+    bl_description = "Restores objects to their original parent and removes the empty."
+
+    @classmethod
+    def poll(cls, context):
+        return context.selected_objects
+
+    def execute(self, context):
+        selected_objects = context.selected_objects
+        pivot_empty = next((obj for obj in context.collection.objects if obj.name == "Empty"), None)
+
+        if pivot_empty:
+            # Clear parent and keep transform for selected objects
+            for obj in selected_objects:
+                if obj.parent == pivot_empty:
+                    obj.parent = None
+                    obj.location = obj.matrix_world.to_translation()
+                    obj.rotation_euler = obj.rotation_euler.copy()
+
+            # Clear parent inverse for the pivot empty and remove it
+            bpy.ops.object.select_all(action='DESELECT')
+            pivot_empty.select_set(True)
+            bpy.context.view_layer.objects.active = pivot_empty
+            bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
+            bpy.data.objects.remove(pivot_empty)
+
+            self.report({'INFO'}, "Restored original parent and removed empty.")
+        else:
+            self.report({'WARNING'}, "No empty found.")
+
         return {'FINISHED'}
 
 class SnapPanel(bpy.types.Panel):
@@ -127,12 +230,14 @@ class SnapPanel(bpy.types.Panel):
 
     def draw(self, context):
         layout = self.layout
-        layout.label(text="Press 'End' to snap")
-
-        snap_operator = layout.operator(SnapToGroundOperator.bl_idname, text="Snap to Ground")
-        undo_operator = layout.operator(UndoSnapOperator.bl_idname, text="Undo Snap")
         
-        # Panel properties
+        # Snap options
+        layout.label(text="Snap Options")
+        layout.operator(SnapToGroundOperator.bl_idname, text="Snap to Ground")
+        layout.operator(UndoSnapOperator.bl_idname, text="Undo Snap")
+        
+        layout.label(text="Press 'END' to snap quickly.")
+        
         layout.prop(context.scene, "snap_detection_distance_limit")
         layout.prop(context.scene, "snap_gap_offset")
         layout.prop(context.scene, "snap_randomize_rotation_x")
@@ -140,6 +245,16 @@ class SnapPanel(bpy.types.Panel):
         layout.prop(context.scene, "snap_randomize_rotation_z")
         layout.prop(context.scene, "snap_object_type")
         layout.prop(context.scene, "snap_rotate_to_normal")
+
+        layout.separator()  # Line separator
+
+        # Empty options
+        layout.label(text="Empty Options")
+        layout.operator(CreatePivotOperator.bl_idname, text="Create Empty")
+        layout.operator(UndoCreatePivotOperator.bl_idname, text="Undo Create Empty")
+        
+        layout.prop(context.scene, "pivot_empty_size")
+        layout.prop(context.scene, "pivot_empty_z_offset")
 
 class SimpleSnapKeymap(bpy.types.Operator):
     bl_idname = "object.simple_snap_keymap"
@@ -150,7 +265,7 @@ class SimpleSnapKeymap(bpy.types.Operator):
         if event.type == 'END' and event.value == 'PRESS':
             bpy.ops.object.snap_to_ground()
             return {'RUNNING_MODAL'}
-        elif event.type in {'ESC'}:  # Allow to cancel
+        elif event.type in {'ESC'}:
             return {'CANCELLED'}
         return {'PASS_THROUGH'}
 
@@ -161,6 +276,8 @@ class SimpleSnapKeymap(bpy.types.Operator):
 def register():
     bpy.utils.register_class(SnapToGroundOperator)
     bpy.utils.register_class(UndoSnapOperator)
+    bpy.utils.register_class(CreatePivotOperator)
+    bpy.utils.register_class(UndoCreatePivotOperator)
     bpy.utils.register_class(SnapPanel)
     bpy.utils.register_class(SimpleSnapKeymap)
 
@@ -192,6 +309,21 @@ def register():
     )
     bpy.types.Scene.snap_rotate_to_normal = bpy.props.BoolProperty(name="Rotate to Normal", default=False)
 
+    # New properties for empty
+    bpy.types.Scene.pivot_empty_size = bpy.props.FloatProperty(
+        name="Empty Size",
+        default=1.0,
+        min=0.0,
+        step=0.1
+    )
+    bpy.types.Scene.pivot_empty_z_offset = bpy.props.FloatProperty(
+        name="Empty Z Offset",
+        default=0.0,
+        min=-10.0,
+        max=10.0,
+        step=0.1
+    )
+
     # Add keymap
     wm = bpy.context.window_manager
     km = wm.keyconfigs.default.keymaps['3D View']
@@ -201,6 +333,8 @@ def unregister():
     bpy.utils.unregister_class(SnapPanel)
     bpy.utils.unregister_class(SnapToGroundOperator)
     bpy.utils.unregister_class(UndoSnapOperator)
+    bpy.utils.unregister_class(CreatePivotOperator)
+    bpy.utils.unregister_class(UndoCreatePivotOperator)
     bpy.utils.unregister_class(SimpleSnapKeymap)
 
     # Unregister properties
@@ -211,6 +345,8 @@ def unregister():
     del bpy.types.Scene.snap_randomize_rotation_z
     del bpy.types.Scene.snap_object_type
     del bpy.types.Scene.snap_rotate_to_normal
+    del bpy.types.Scene.pivot_empty_size
+    del bpy.types.Scene.pivot_empty_z_offset
 
     # Remove keymap
     wm = bpy.context.window_manager
