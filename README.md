@@ -38,7 +38,7 @@
 - Use the **Create Empty** button to generate an empty at the lowest point of selected objects.
 - Customize settings directly from the panel, including the **Gap Offset**, empty size, and randomization options.
 
-![screenshot](https://imgur.com/gRCBC9Q.jpg)
+  ![screenshot](https://imgur.com/gRCBC9Q.jpg)
 
 ## Using the Tool
 
