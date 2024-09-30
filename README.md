@@ -24,6 +24,8 @@
 
 - **User-Friendly Panel**: Access all options conveniently within a dedicated panel in the 3D view.
 
+- **Enable Floor Selection**: Option to snap selected objects to a specific target floor object, providing more control over placement.
+
 ## Installation
 
 1. Click the green button **Code > Download Zip** to download the add-on to your computer.
@@ -38,7 +40,7 @@
 - Use the **Add Control** button to generate an empty at the lowest point of selected objects.
 - Customize settings directly from the panel, including the **Gap Offset**, empty size, and randomization options.
 
-![screenshot](https://imgur.com/ZihNUFt.jpg)
+  ![screenshot](https://imgur.com/ZihNUFt.jpg)
 
 ## Using the Tool
 
