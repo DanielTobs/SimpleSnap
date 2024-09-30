@@ -38,7 +38,7 @@
 - Use the **Add Control** button to generate an empty at the lowest point of selected objects.
 - Customize settings directly from the panel, including the **Gap Offset**, empty size, and randomization options.
 
-  ![screenshot](https://imgur.com/Rsn2ifi.jpg)
+![screenshot](https://imgur.com/ZihNUFt.jpg)
 
 ## Using the Tool
 
@@ -66,4 +66,3 @@ If you encounter issues, please ensure you have the latest version of the add-on
 ## Version Support
 
 Compatible with Blender 4.2 and newer.
-
