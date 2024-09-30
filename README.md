@@ -9,12 +9,18 @@
   - Snap to the bottom of selected objects.
   - Customize snap behavior with a **Gap Offset** to control the distance between objects and the surface.
 
+    ![gif](https://imgur.com/BOyHZ6J.gif)
+
 - **Add Control**: Create an empty object at the lowest point of selected objects, with customizable size and Z offset. This is useful for organizing and parenting objects.
   - Specify the size of the empty for better visibility.
   - Control the Z offset to position the empty at a precise height above the ground.
 
+    ![gif](https://imgur.com/mv30TXV.gif)
+
 - **Randomization Options**:
   - Randomly rotate the selected object around the X, Y, and Z axes before snapping.
+ 
+    ![gif](https://imgur.com/eCeBsXX.gif)
 
 - **Flexible Target Selection**: Choose to snap to all objects or only mesh objects.
 
