@@ -2,7 +2,7 @@
 
 **SimpleSnap** is a Blender add-on designed to facilitate the alignment of selected objects with the ground. It provides tools to quickly snap mesh objects to specific positions, similar to vertex snapping in other software like Unreal. With customizable options for distance limits, offsets, and rotations, it streamlines your workflow in scenes.
   
-  ![gif](https://imgur.com/AKR4Dro.gif)
+  ![gif](https://imgur.com/ZoP8fsv.gif)
 
 ## Features
 
